@@ -1,5 +1,17 @@
-//Construct hash of values in G which is like visited hash
-function getHashOfG(G) {
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @param {number[]} G
+ * @return {number}
+ */
+
+ function getHashOfG(G) {
   let ghash = {};
   for(let i of G) {
       ghash[i] = false;
@@ -7,7 +19,6 @@ function getHashOfG(G) {
   return ghash;
 }
 
-//traverse the current node, and mark nodes adjacent to it as visited if available in ghash
 function traverseNode(node, ghash) {
   let current = node;
   while(current != null && ghash[current.val]==false) {
@@ -25,10 +36,7 @@ var numComponents = function(head, G) {
   
   while(current!=null && nonVisitedCount >0 ) {
       
-      let currentGhash = ghash[current.val];
-      
-      if(currentGhash==false) {
-          currentGhash = true;
+      if(ghash[current.val]==false) {
           traverseNode(current, ghash);
           ++count;
       }
