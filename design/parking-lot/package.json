@@ -1,0 +1,20 @@
+{
+  "name": "parking-lot",
+  "version": "1.0.0",
+  "description": "parking lot object oriented design",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ood",
+    "object-oriented-design",
+    "parking-lot",
+    "interview"
+  ],
+  "author": "sarunya.d",
+  "license": "ISC",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
+}
