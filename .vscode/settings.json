@@ -1,0 +1,9 @@
+{
+  "[python]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4  
+  },
+  "java.project.sourcePaths": [
+    "java_solutions"
+  ]
+}

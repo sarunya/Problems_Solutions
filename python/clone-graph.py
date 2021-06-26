@@ -5,7 +5,6 @@ class Node(object):
         self.val = val
         self.neighbors = neighbors if neighbors is not None else []
 """
-
 class Solution(object):
     
     def _clone(self, node, visited):
