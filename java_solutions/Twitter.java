@@ -1,111 +1,96 @@
 import java.util.*;
 
-public class Twitter {
+ class Twitter {
 
   class Tweet {
-    int tweetId, userId, time;
-
-    Tweet(int tweetId, int userId, int time) {
+    int tweetId, time;
+    public Tweet(int tweetId, int time) {
       this.tweetId = tweetId;
-      this.userId = userId;
       this.time = time;
     }
   }
 
-  class TweetComparator implements Comparator<Tweet> {
-
-    @Override
-    public int compare(Twitter.Tweet o1, Twitter.Tweet o2) {
-      return o2.time - o1.time;
-    }
-
-  }
-
-  Map<Integer, List<Integer>> userFollowers;
-  Map<Integer, PriorityQueue<Tweet>> userTweets;
-  int time;
-
+  HashMap<Integer, HashSet<Integer>> userFollowers;
+  HashMap<Integer, List<Tweet>> userTweets;
+  List<Integer> newsFeed;
+  int time = 0;
   /** Initialize your data structure here. */
   public Twitter() {
-    this.userFollowers = new HashMap<Integer, List<Integer>>();
-    this.userTweets = new HashMap<Integer, PriorityQueue<Tweet>>();
+    this.userTweets = new HashMap<Integer, List<Tweet>>();
+    this.userFollowers = new HashMap<Integer, HashSet<Integer>>();
     this.time = 0;
   }
-
-  private void addTweetToFeed(int userId, Tweet tweet) {
-    PriorityQueue<Tweet> feed = this.userNewsFeed.getOrDefault(tweet.userId,
-        new PriorityQueue<Tweet>(new TweetComparator()));
-    if (feed.size() == 10) {
-      feed.poll();
-    }
-    feed.add(tweet);
-    this.userNewsFeed.put(userId, feed);
-  }
-
-  private void addNewTweet(Tweet tweet) {
-    // add this tweet to own news feed
-    this.addTweetToFeed(tweet.userId, tweet);
-
-    // add this tweet to followers of tweet user
-    if (userFollowedBy.containsKey(tweet.userId)) {
-      List<Integer> followedBy = userFollowedBy.get(tweet.userId);
-      for (Integer userId : followedBy) {
-        this.addTweetToFeed(userId, tweet);
-      }
-    }
-  }
-
-  private void addFolowerTweets(int userId, int followeeId) {
-    if (this.userTweets.containsKey(followeeId)) {
-      // check if this user's tweet has any recent value that can be added to users
-      // feed
-      PriorityQueue<Tweet> followeeTweets = this.userTweets.get(followeeId);
-      PriorityQueue<Tweet> feed = this.userNewsFeed.getOrDefault(userId,
-      new PriorityQueue<Tweet>(new TweetComparator()));;
-      while(followeeTweetsfeed.size()<10 .peek().time > )
-    }
-  }
-
+  
   /** Compose a new tweet. */
   public void postTweet(int userId, int tweetId) {
-    PriorityQueue<Tweet> tweets = userTweets.getOrDefault(userId, new PriorityQueue<Tweet>(new TweetComparator()));
-    Tweet tweet = new Tweet(tweetId, userId, ++this.time);
-    tweets.add(tweet);
-    userTweets.put(userId, tweets);
-
-    this.addNewTweet(tweet);
+    Tweet newTweet = new Tweet(tweetId, this.time++);
+    List<Tweet> tweets = this.userTweets.getOrDefault(userId, new ArrayList<Tweet>());
+    tweets.add(newTweet);
+    this.userTweets.put(userId, tweets);
   }
-
-  /**
-   * Retrieve the 10 most recent tweet ids in the user's news feed. Each item in
-   * the news feed must be posted by users who the user followed or by the user
-   * herself. Tweets must be ordered from most recent to least recent.
-   */
+  
+  /** Retrieve the 10 most recent tweet ids in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user herself. Tweets must be ordered from most recent to least recent. */
   public List<Integer> getNewsFeed(int userId) {
+    List<Integer> result = new ArrayList<Integer>();
 
+    PriorityQueue<Tweet> pq = new PriorityQueue<>((a, b) -> a.time-b.time);
+
+    //add own tweets
+    for(Tweet t : userTweets.getOrDefault(userId, new ArrayList<Tweet>())) {
+      this._addTweetToFeed(pq, t);
+    }
+
+    //add followers tweets
+    for(int followeeId : userFollowers.getOrDefault(userId, new HashSet<>())) {
+      for(Tweet t : userTweets.getOrDefault(followeeId, new ArrayList<Tweet>())) {
+        this._addTweetToFeed(pq, t);
+      }
+    }
+
+    //store result from pq
+    while(!pq.isEmpty()) {
+        Tweet t = pq.poll();
+        // System.out.println("tweet "+t.tweetId+" "+t.time);
+      result.add(t.tweetId);
+    }
+
+    Collections.reverse(result);
+    return result;
   }
 
-  /**
-   * Follower follows a followee. If the operation is invalid, it should be a
-   * no-op.
-   */
+  private void _addTweetToFeed(PriorityQueue<Tweet> pq, Tweet t) {
+    if(pq.size()<10) {
+      pq.add(t);
+    } else if(pq.peek().time<t.time) {
+      pq.poll();
+      pq.add(t);
+    }
+  }
+  
+  /** Follower follows a followee. If the operation is invalid, it should be a no-op. */
   public void follow(int followerId, int followeeId) {
-    List<Integer> followers = this.userFollowers.getOrDefault(followerId, new ArrayList<Integer>());
-    followers.add(followeeId);
+      HashSet<Integer> followers = this.userFollowers.getOrDefault(followerId, new HashSet<Integer>());
+      if(!followers.contains(followeeId)) {
+        followers.add(followeeId);
+        this.userFollowers.put(followerId, followers);
+      }
   }
-
-  /**
-   * Follower unfollows a followee. If the operation is invalid, it should be a
-   * no-op.
-   */
+  
+  /** Follower unfollows a followee. If the operation is invalid, it should be a no-op. */
   public void unfollow(int followerId, int followeeId) {
-
+    HashSet<Integer> followers = this.userFollowers.getOrDefault(followerId, new HashSet<Integer>());
+    if(followers.contains(followeeId)) {
+      followers.remove(Integer.valueOf(followeeId));
+      this.userFollowers.put(followerId, followers);
+    }
   }
 }
 
 /**
- * Your Twitter object will be instantiated and called as such: Twitter obj =
- * new Twitter(); obj.postTweet(userId,tweetId); List<Integer> param_2 =
- * obj.getNewsFeed(userId); obj.follow(followerId,followeeId);
- * obj.unfollow(followerId,followeeId);
- */
+* Your Twitter object will be instantiated and called as such:
+* Twitter obj = new Twitter();
+* obj.postTweet(userId,tweetId);
+* List<Integer> param_2 = obj.getNewsFeed(userId);
+* obj.follow(followerId,followeeId);
+* obj.unfollow(followerId,followeeId);
+*/
