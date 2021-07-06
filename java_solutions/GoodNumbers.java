@@ -1,10 +1,14 @@
 import java.math.BigInteger;
   
 class GoodNumbers {
-    BigInteger MOD = BigInteger.valueOf(1000000007);
     public int countGoodNumbers(long n) {
         BigInteger odd = BigInteger.valueOf(Math.floorDiv(n, 2));
         BigInteger even = odd.subtract(BigInteger.valueOf(n));
+        BigInteger mod = BigInteger.valueOf(1000000007);
+
+        // odd.pow
+        BigInteger result = odd.modPow(BigInteger.valueOf(4), mod).multiply(even.modPow(BigInteger.valueOf(4), mod)).mod(mod);
+        return result.intValue();
     }
     
   }
